@@ -1,6 +1,6 @@
 import type { DestinationInfo } from '../types/travel.types';
 
-const DESTINATIONS_DATA: DestinationInfo[] = [
+export const DESTINATIONS_DATA: DestinationInfo[] = [
   {
     id: 'dest-bali',
     name: 'Bali & Nusa Penida',

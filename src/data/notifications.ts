@@ -1,6 +1,6 @@
 import type { AppNotification } from '../types/notification.types';
 
-const INITIAL_NOTIFICATIONS: AppNotification[] = [
+export const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'n1',
     title: 'Seasonal Promo Code Available',

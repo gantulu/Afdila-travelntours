@@ -1,6 +1,6 @@
 import type { TravelPackage } from '../types/travel.types';
 
-const PACKAGES_DATA: TravelPackage[] = [
+export const PACKAGES_DATA: TravelPackage[] = [
   {
     id: 'pkg-bali-ubud-4d3n',
     slug: 'bali-ubud-nusa-penida-escape-4d3n',

@@ -1,6 +1,6 @@
 import type { PaymentChannelOption } from '../types/payment.types';
 
-const PAYMENT_CHANNELS: PaymentChannelOption[] = [
+export const PAYMENT_CHANNELS: PaymentChannelOption[] = [
   {
     id: 'bank_transfer_verified',
     name: 'Bank Transfer (Manual Verification)',
