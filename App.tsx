@@ -13,7 +13,6 @@ import { DESTINATIONS_DATA } from './src/data/destinations';
 import { PACKAGES_DATA } from './src/data/packages';
 import { PAYMENT_CHANNELS } from './src/data/payment-channels';
 import { INITIAL_NOTIFICATIONS } from './src/data/notifications';
-import { calculateBookingPricing } from './src/services/pricing.service';
 import { reconcileTravelers } from './src/services/booking.service';
 import { getPackageById, getPackagesByDestination } from './src/services/package.service';
 import { getDestinationById, getOtherDestinations } from './src/services/destination.service';
