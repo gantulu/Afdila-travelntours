@@ -1,6 +1,6 @@
 import React, { type FormEvent } from 'react';
 import { Briefcase } from 'lucide-react';
-import { Badge, AlertBanner, EmptyState } from './ui/FeedbackComponents';
+import { Badge, AlertBanner, EmptyState } from '../components/ui/FeedbackComponents';
 import { formatIDR } from '../utils/currency';
 import { formatDateReadable } from '../utils/date';
 import type { Booking } from '../types/booking.types';
