@@ -3,7 +3,7 @@ import { Search, X, Sparkles, Star } from 'lucide-react';
 import { TRAVEL_CATEGORIES } from '../data/travel-categories';
 import { DESTINATIONS_DATA } from '../data/destinations';
 import { PACKAGES_DATA } from '../data/packages';
-import { PackageCard } from './PackageCard';
+import { PackageCard } from '../components/PackageCard';
 import type { MainTab, StandaloneView } from '../types/navigation.types';
 
 interface HomePageProps {
