@@ -1,8 +1,8 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { PACKAGES_DATA } from '../data/packages';
-import { Badge, EmptyState } from './ui/FeedbackComponents';
-import { PackageCard } from './PackageCard';
+import { Badge, EmptyState } from '../components/ui/FeedbackComponents';
+import { PackageCard } from '../components/PackageCard';
 
 interface WishlistPageProps {
   wishlistIds: string[];
