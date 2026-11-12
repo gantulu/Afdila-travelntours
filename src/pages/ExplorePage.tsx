@@ -2,9 +2,8 @@ import React from 'react';
 import { Search, X, SlidersHorizontal, ChevronRight, ArrowUpDown, Compass } from 'lucide-react';
 import { DESTINATIONS_DATA } from '../data/destinations';
 import { TRAVEL_CATEGORIES } from '../data/travel-categories';
-import { EmptyState } from './ui/FeedbackComponents';
-import { PackageCard } from './PackageCard';
-import type { MainTab } from '../types/navigation.types';
+import { EmptyState } from '../components/ui/FeedbackComponents';
+import { PackageCard } from '../components/PackageCard';
 import type { PriceFilter, PackageSort } from '../hooks/usePackageCatalog';
 
 interface ExplorePageProps {
