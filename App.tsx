@@ -85,6 +85,14 @@ body,
   box-shadow: 0 0 40px rgba(11, 37, 69, 0.14);
 }
 
+:fullscreen #root {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  box-shadow: none;
+}
+
 .app-shell {
   height: 100%;
   display: flex;
@@ -176,6 +184,10 @@ body,
 // ============================================================================
 
 export function App() {
+  // Fullscreen entry gate: the app is accessible only while browser fullscreen is active.
+  const [isAppActive, setIsAppActive] = useState<boolean>(false);
+  const [fullscreenError, setFullscreenError] = useState<string>('');
+
   // Navigation State
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [standalone, setStandalone] = useState<StandaloneView>(null);
@@ -258,6 +270,34 @@ export function App() {
     },
     [showToast]
   );
+
+  // Return to the splash screen whenever fullscreen is exited (Escape, browser UI, etc.).
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreenActive = Boolean(document.fullscreenElement);
+      setIsAppActive(fullscreenActive);
+      if (!fullscreenActive) setFullscreenError('');
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    handleFullscreenChange();
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const handleEnterApp = async () => {
+    setFullscreenError('');
+    if (!document.documentElement.requestFullscreen) {
+      setFullscreenError('Browser ini belum mendukung Fullscreen API. Gunakan browser yang mendukung mode layar penuh.');
+      return;
+    }
+
+    try {
+      await document.documentElement.requestFullscreen();
+      // fullscreenchange is the source of truth for activating the app.
+    } catch {
+      setFullscreenError('Mode layar penuh tidak dapat diaktifkan. Izinkan fullscreen pada browser lalu coba lagi.');
+    }
+  };
 
   // Sync WhatsApp when checkbox active
   useEffect(() => {
@@ -2367,7 +2407,64 @@ export function App() {
     <>
       <style>{GLOBAL_STYLES}</style>
 
-      {renderMainContent()}
+      {isAppActive ? renderMainContent() : (
+        <main
+          className="relative flex h-full min-h-screen w-full flex-col justify-between overflow-hidden bg-[#06172D] px-7 py-10 text-white"
+          style={{
+            paddingTop: 'max(2.5rem, env(safe-area-inset-top))',
+            paddingBottom: 'max(2.5rem, env(safe-area-inset-bottom))'
+          }}
+        >
+          <div className="pointer-events-none absolute -right-28 -top-24 h-80 w-80 rounded-full bg-[#136F99]/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-[#D97706]/15 blur-3xl" />
+
+          <div className="relative z-10 flex items-center gap-3">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
+              <Plane className="h-6 w-6 text-white" />
+            </span>
+            <span>
+              <span className="block text-lg font-black tracking-[0.18em]">ASRIVA</span>
+              <span className="mt-0.5 block text-[10px] font-bold tracking-[0.28em] text-sky-200">TRAVEL & TOURS</span>
+            </span>
+          </div>
+
+          <section className="relative z-10 py-12">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-100">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+              Your journey starts here
+            </div>
+            <h1 className="max-w-sm text-4xl font-black leading-[1.12] tracking-tight sm:text-5xl">
+              Temukan perjalanan yang berarti.
+            </h1>
+            <p className="mt-5 max-w-xs text-sm leading-6 text-slate-300">
+              Jelajahi destinasi, pilih pengalaman terbaik, dan rencanakan perjalanan Anda bersama ASRIVA.
+            </p>
+
+            {fullscreenError && (
+              <p role="alert" className="mt-6 rounded-xl border border-rose-300/25 bg-rose-400/10 px-4 py-3 text-xs leading-5 text-rose-100">
+                {fullscreenError}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleEnterApp}
+              className="mt-8 flex w-full max-w-sm items-center justify-center gap-3 rounded-2xl bg-white px-5 py-4 text-sm font-extrabold text-[#0B2545] shadow-xl shadow-black/20 transition hover:bg-sky-50 active:scale-[0.98]"
+            >
+              Masuk
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            <p className="mt-4 text-center text-[11px] text-slate-400">
+              Layar penuh diperlukan untuk melanjutkan · Masuk sebagai tamu
+            </p>
+          </section>
+
+          <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-5 text-[10px] tracking-wide text-slate-400">
+            <span>ASRIVA Travel & Tours</span>
+            <span>Explore · Experience · Enjoy</span>
+          </div>
+        </main>
+      )}
 
       {/* Explore Filter BottomSheet */}
       <BottomSheet open={filterSheetOpen} title="Filter Tour Packages" onClose={() => setFilterSheetOpen(false)}>
