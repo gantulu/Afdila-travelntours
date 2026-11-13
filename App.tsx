@@ -41,6 +41,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { CATEGORIES, DESTINATIONS, TOURS, POPULAR_ACTIVITIES, PAYMENT_METHODS } from './src/data/travel';
+import type { Booking, BookingDraft, CategoryId, PaymentResult, TripTab } from './src/types/travel';
 
 // ============================================================================
 // MOCK DATA: DESTINASI & PAKET WISATA INDONESIA
@@ -138,14 +139,14 @@ export default function App() {
   // Navigation & Routing State
   // Pages: 'home', 'explore', 'my-trips', 'profile', 'destination-detail', 'tour-detail', 'booking', 'payment', 'confirmation'
   const [currentPage, setCurrentPage] = useState('home');
-  const [selectedDestinationId, setSelectedDestinationId] = useState(null);
-  const [selectedTourId, setSelectedTourId] = useState(null);
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [wishlist, setWishlist] = useState(['tour-1', 'tour-4']);
   const [toast, setToast] = useState(null);
 
   // Explore & Search State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
   const [filterLocation, setFilterLocation] = useState('all');
   const [filterDuration, setFilterDuration] = useState('all');
   const [filterMaxPrice, setFilterMaxPrice] = useState(10000000);
@@ -153,7 +154,7 @@ export default function App() {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Booking Flow State
-  const [bookingDraft, setBookingDraft] = useState({
+  const [bookingDraft, setBookingDraft] = useState<BookingDraft>({
     tourId: null,
     date: '',
     participants: 2,
@@ -168,12 +169,12 @@ export default function App() {
   // Payment & Confirmation State
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('qris');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [paymentResult, setPaymentResult] = useState(null); // 'simulated' | 'failed'
-  const [latestBooking, setLatestBooking] = useState(null);
-  const [tripTab, setTripTab] = useState('UPCOMING'); // 'UPCOMING' | 'COMPLETED'
+  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null); // 'simulated' | 'failed'
+  const [latestBooking, setLatestBooking] = useState<Booking | null>(null);
+  const [tripTab, setTripTab] = useState<TripTab>('UPCOMING'); // 'UPCOMING' | 'COMPLETED'
 
   // Bookings History State (persisted in localStorage)
-  const [bookings, setBookings] = useState(() => {
+  const [bookings, setBookings] = useState<Booking[]>(() => {
     try {
       const saved = localStorage.getItem('nws_wanderlust_bookings_v1');
       if (saved) return JSON.parse(saved);
