@@ -1,4 +1,3 @@
-```react
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   MapPin,
@@ -722,8 +721,9 @@ export default function App() {
   // Payment & Confirmation State
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('qris');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [paymentResult, setPaymentResult] = useState(null); // 'success' | 'failed'
+  const [paymentResult, setPaymentResult] = useState(null); // 'simulated' | 'failed'
   const [latestBooking, setLatestBooking] = useState(null);
+  const [tripTab, setTripTab] = useState('UPCOMING'); // 'UPCOMING' | 'COMPLETED'
 
   // Bookings History State (persisted in localStorage)
   const [bookings, setBookings] = useState(() => {
@@ -2139,7 +2139,7 @@ export default function App() {
       PAYMENT_METHODS.find((m) => m.id === selectedPaymentMethod) || PAYMENT_METHODS[0];
     const grandTotal = priceBreakdown.total + activeMethod.fee;
 
-    const handlePayNow = (simulateSuccess = true) => {
+    const handleSimulatePayment = (simulateSuccess = true) => {
       setIsProcessingPayment(true);
       setPaymentResult(null);
 
@@ -2165,12 +2165,13 @@ export default function App() {
           totalAmount: grandTotal,
           paymentMethod: activeMethod.name,
           status: 'UPCOMING',
+          paymentStatus: 'SIMULATED',
           createdAt: new Date().toISOString().split('T')[0],
         };
 
         setBookings((prev) => [newBooking, ...prev]);
         setLatestBooking(newBooking);
-        setPaymentResult('success');
+        setPaymentResult('simulated');
         setCurrentPage('confirmation');
       }, 1400);
     };
@@ -2188,7 +2189,7 @@ export default function App() {
           </button>
           <div>
             <h1 className="text-base font-bold text-slate-900">Pembayaran</h1>
-            <p className="text-[11px] text-slate-500">Langkah 2 dari 2 • Simulasi Pembayaran</p>
+            <p className="text-[11px] text-slate-500">Demo pembayaran • Tidak ada transaksi nyata</p>
           </div>
         </div>
 
@@ -2200,8 +2201,8 @@ export default function App() {
               <div className="space-y-1">
                 <h3 className="text-xs font-bold text-rose-900">Pembayaran Tidak Berhasil</h3>
                 <p className="text-xs text-rose-700 leading-relaxed">
-                  Transaksi simulasi ditolak oleh penyedia pembayaran. Silakan pilih metode lain
-                  atau klik Pay Now kembali.
+                  Simulasi pembayaran gagal. Tidak ada dana yang ditagihkan. Silakan coba simulasi
+                  kembali.
                 </p>
               </div>
             </div>
@@ -2309,12 +2310,12 @@ export default function App() {
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
               <ShieldCheck className="w-4 h-4 text-teal-600" />
-              <span>Transaksi aman & terenkripsi</span>
+              <span>Mode demo • Tidak ada dana yang ditagihkan</span>
             </div>
             <button
               type="button"
               disabled={isProcessingPayment}
-              onClick={() => handlePayNow(false)}
+              onClick={() => handleSimulatePayment(false)}
               className="text-[11px] font-semibold text-rose-600 hover:underline"
             >
               Simulasi Gagal
@@ -2327,7 +2328,7 @@ export default function App() {
           <button
             type="button"
             disabled={isProcessingPayment}
-            onClick={() => handlePayNow(true)}
+            onClick={() => handleSimulatePayment(true)}
             className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-400 text-white text-sm font-bold shadow-lg shadow-teal-600/25 flex items-center justify-center gap-2 transition"
           >
             {isProcessingPayment ? (
@@ -2336,7 +2337,7 @@ export default function App() {
                 <span>Memproses Pembayaran...</span>
               </>
             ) : (
-              <span>Pay Now • {formatIDR(grandTotal)}</span>
+              <span>Simulasikan • {formatIDR(grandTotal)}</span>
             )}
           </button>
         </div>
@@ -2348,6 +2349,8 @@ export default function App() {
   const renderConfirmation = () => {
     const booking = latestBooking || bookings[0];
     if (!booking) return null;
+    const isPaid = booking.paymentStatus === 'PAID';
+    const isSimulated = !isPaid;
 
     return (
       <div className="min-h-screen bg-[#F8F9FA] px-5 py-8 flex flex-col justify-between">
@@ -2357,10 +2360,13 @@ export default function App() {
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Pemesanan Berhasil!</h1>
+            <h1 className="text-xl font-bold text-slate-900">
+              {isSimulated ? 'Simulasi Pemesanan Selesai' : 'Pemesanan Berhasil!'}
+            </h1>
             <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
-              E-Voucher perjalanan telah diterbitkan dan tersimpan di menu{' '}
-              <span className="font-semibold text-slate-800">My Trips</span>.
+              {isSimulated
+                ? 'Ini hanya data demo. Pembayaran belum diverifikasi dan e-voucher resmi belum diterbitkan.'
+                : <>Pembayaran terverifikasi. E-Voucher tersedia di menu <span className="font-semibold text-slate-800">My Trips</span>.</>}
             </p>
           </div>
 
@@ -2375,8 +2381,12 @@ export default function App() {
                   {booking.id}
                 </span>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">
-                LUNAS
+              <span className={`px-3 py-1 rounded-full border text-[11px] font-bold ${
+                isPaid
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  : 'bg-amber-500/20 text-amber-200 border-amber-500/30'
+              }`}>
+                {isPaid ? 'LUNAS' : 'SIMULASI • BELUM LUNAS'}
               </span>
             </div>
 
@@ -2437,8 +2447,6 @@ export default function App() {
 
   // H. MY TRIPS PAGE
   const renderMyTrips = () => {
-    const [tripTab, setTripTab] = useState('UPCOMING'); // 'UPCOMING' | 'COMPLETED'
-
     const upcomingBookings = bookings.filter((b) => b.status === 'UPCOMING');
     const completedBookings = bookings.filter((b) => b.status === 'COMPLETED');
     const displayedList = tripTab === 'UPCOMING' ? upcomingBookings : completedBookings;
@@ -2524,12 +2532,18 @@ export default function App() {
                       </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          item.status === 'UPCOMING'
-                            ? 'bg-teal-50 text-teal-700'
-                            : 'bg-slate-100 text-slate-600'
+                          item.status === 'COMPLETED'
+                            ? 'bg-slate-100 text-slate-600'
+                            : item.paymentStatus === 'PAID'
+                              ? 'bg-teal-50 text-teal-700'
+                              : 'bg-amber-50 text-amber-700'
                         }`}
                       >
-                        {item.status === 'UPCOMING' ? 'Terkonfirmasi' : 'Selesai'}
+                        {item.status === 'COMPLETED'
+                          ? 'Selesai'
+                          : item.paymentStatus === 'PAID'
+                            ? 'Terkonfirmasi'
+                            : 'Simulasi • Belum lunas'}
                       </span>
                     </div>
                     <h3 className="font-bold text-sm text-slate-900 line-clamp-2 mt-1 leading-snug">
@@ -2550,13 +2564,15 @@ export default function App() {
 
                 <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Total Dibayar</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {item.paymentStatus === 'PAID' ? 'Total Dibayar' : 'Total Booking (Demo)'}
+                    </span>
                     <span className="text-xs font-bold text-slate-900">
                       {formatIDR(item.totalAmount)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {item.status === 'UPCOMING' && (
+                    {item.status === 'UPCOMING' && item.paymentStatus === 'PAID' && (
                       <button
                         onClick={() => markAsCompleted(item.id)}
                         className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
@@ -2571,7 +2587,7 @@ export default function App() {
                       }}
                       className="px-3.5 py-1.5 rounded-xl bg-teal-600 text-white text-[11px] font-semibold"
                     >
-                      E-Voucher
+                      {item.paymentStatus === 'PAID' ? 'E-Voucher' : 'Detail Demo'}
                     </button>
                   </div>
                 </div>
@@ -2776,4 +2792,3 @@ export default function App() {
     </div>
   );
 }
-```
