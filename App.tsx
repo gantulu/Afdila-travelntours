@@ -1,4 +1,3 @@
-```react
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   MapPin,
@@ -2793,4 +2792,3 @@ export default function App() {
     </div>
   );
 }
-```
