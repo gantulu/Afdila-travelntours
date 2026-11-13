@@ -94,11 +94,17 @@ body,
 }
 
 .app-header {
+  position: sticky;
+  top: 0;
   flex-shrink: 0;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   padding-top: env(safe-area-inset-top, 0px);
-  z-index: 20;
+  z-index: 30;
+}
+
+.app-global-header {
+  isolation: isolate;
 }
 
 .app-content {
@@ -556,18 +562,21 @@ export function App() {
   // ============================================================================
 
   const renderStandaloneHeader = (title: string, onBack: () => void, rightSlot?: React.ReactNode) => (
-    <header className="app-header px-3.5 py-3 flex items-center justify-between gap-2">
-      <button
-        type="button"
-        onClick={onBack}
-        aria-label="Go back"
-        className="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition shrink-0"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <h1 className="text-[15px] font-bold text-slate-900 truncate flex-1 text-center">{title}</h1>
-      <div className="min-w-[36px] flex justify-end shrink-0">{rightSlot}</div>
-    </header>
+    <>
+      {renderGlobalHeader()}
+      <header className="app-header px-3.5 py-3 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Go back"
+          className="w-9 h-9 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition shrink-0"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-[15px] font-bold text-slate-900 truncate flex-1 text-center">{title}</h1>
+        <div className="min-w-[36px] flex justify-end shrink-0">{rightSlot}</div>
+      </header>
+    </>
   );
 
   // DESTINATION DETAIL PAGE
@@ -2251,6 +2260,47 @@ export function App() {
 
   const unreadNotificationsCount = notifications.filter((n) => n.unread).length;
 
+  // Shared brand header rendered on every primary and standalone screen.
+  const renderGlobalHeader = () => (
+    <header className="app-header app-global-header px-4 py-3 flex items-center justify-between">
+      <button type="button" onClick={() => { setStandalone(null); setActiveTab('home'); }} className="flex items-center gap-2.5 cursor-pointer text-left" aria-label="ASRIVA Home">
+        <span className="w-9 h-9 rounded-xl bg-[#0B2545] text-white flex items-center justify-center shadow-xs">
+          <Plane className="w-5 h-5" />
+        </span>
+        <span>
+          <span className="block text-sm font-black tracking-tight text-[#0B2545] leading-none">ASRIVA</span>
+          <span className="block text-[10px] font-bold tracking-widest text-[#136F99] mt-0.5">TRAVEL & TOURS</span>
+        </span>
+      </button>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-label="Notifications"
+          onClick={() => {
+            setNotificationModalOpen(true);
+            setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+          }}
+          className="relative w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200 transition"
+        >
+          <Bell className="w-4 h-4" />
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#D97706]" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          aria-label="Profile shortcut"
+          onClick={() => { setStandalone(null); setActiveTab('profile'); }}
+          className="w-9 h-9 rounded-xl bg-[#E7F3F8] text-[#0B2545] flex items-center justify-center font-bold text-xs"
+        >
+          <User className="w-4 h-4" />
+        </button>
+      </div>
+    </header>
+  );
+
   const renderMainContent = () => {
     if (standalone) {
       if (standalone.type === 'destination') return renderDestinationPage(standalone.destinationId);
@@ -2264,44 +2314,7 @@ export function App() {
 
     return (
       <div className="app-shell">
-        {/* Brand Header with Notification & Profile Shortcuts */}
-        <header className="app-header px-4 py-3 flex items-center justify-between">
-          <div onClick={() => setActiveTab('home')} className="flex items-center gap-2.5 cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-[#0B2545] text-white flex items-center justify-center shadow-xs">
-              <Plane className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-sm font-black tracking-tight text-[#0B2545] leading-none">ASRIVA</div>
-              <div className="text-[10px] font-bold tracking-widest text-[#136F99] mt-0.5">TRAVEL & TOURS</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Notifications"
-              onClick={() => {
-                setNotificationModalOpen(true);
-                setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-              }}
-              className="relative w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200 transition"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#D97706]" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              aria-label="Profile shortcut"
-              onClick={() => setActiveTab('profile')}
-              className="w-9 h-9 rounded-xl bg-[#E7F3F8] text-[#0B2545] flex items-center justify-center font-bold text-xs"
-            >
-              <User className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
+        {renderGlobalHeader()}
 
         {/* Scrollable Active Page Content */}
         <main className="app-content">
